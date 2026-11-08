@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteador - Perfil 7</title>
+    <!-- Mantenha todo o seu CSS (style) anterior aqui -->
+    <style>
+        /* ... seu CSS ... */
+    </style>
+</head>
+<body>
+
+    <!-- Mantenha os seus botões e divs do HTML anterior aqui -->
+    <button class="btn-pescar" onclick="pescarCarta()">Pescar Carta</button>
+
+    <div class="carta" id="carta-container">
+        <!-- ... estrutura da carta ... -->
+    </div>
+
+    <!-- 1. Primeiro carregamos o banco de dados -->
+    <script src="cartas.js"></script>
+
+    <!-- 2. Depois carregamos a lógica do jogo -->
+    <script>
+        // O JavaScript agora sabe que a variável "baralho" existe porque foi carregada no script acima!
+
+        function pescarCarta() {
+            const indexAleatorio = Math.floor(Math.random() * baralho.length);
+            const cartaSorteada = baralho[indexAleatorio];
+
+            document.getElementById('categoria').innerText = cartaSorteada.categoria;
+            
+            const elementoResposta = document.getElementById('resposta');
+            elementoResposta.innerText = cartaSorteada.resposta;
+            if (!elementoResposta.classList.contains('escondido')) {
+                elementoResposta.classList.add('escondido');
+            }
+
+            const listaDicas = document.getElementById('dicas-container');
+            listaDicas.innerHTML = '';
+            
+            cartaSorteada.dicas.forEach(dica => {
+                const li = document.createElement('li');
+                li.innerText = dica;
+                listaDicas.appendChild(li);
+            });
+
+            document.getElementById('carta-container').style.display = 'block';
+        }
+
+        function alternarResposta() {
+            const elementoResposta = document.getElementById('resposta');
+            elementoResposta.classList.toggle('escondido');
+        }
+    </script>
+</body>
+</html>
