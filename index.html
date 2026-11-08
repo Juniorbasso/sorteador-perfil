@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteador - Perfil 7</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c3e50;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none; /* Escondido até sortear */
+        }
+        .categoria {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e74c3c;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+        .dica-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+        }
+        .dica-btn:hover { background-color: #2980b9; }
+        .dica-texto {
+            background: #ecf0f1;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: left;
+            font-size: 0.95rem;
+            display: none;
+        }
+        .resposta-secreta {
+            margin-top: 20px;
+            padding: 15px;
+            background: #27ae60;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .sortear-btn {
+            background-color: #f1c40f;
+            color: #333;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .sortear-btn:hover { background-color: #f39c12; }
+    </style>
+</head>
+<body>
+
+    <h1 style="color: white;">🃏 Sorteador Perfil</h1>
+    <button class="sortear-btn" onclick="sortearCarta()">Sortear Nova Carta</button>
+
+    <div class="card" id="carta-container">
+        <div class="categoria" id="categoria">Categoria</div>
+        
+        <div id="dicas-container">
+            <!-- Dicas aparecerão aqui -->
+        </div>
+
+        <button class="dica-btn" id="btn-proxima-dica" onclick="revelarProximaDica()">Revelar Próxima Dica</button>
+        
+        <div class="resposta-secreta" onclick="revelarResposta()" id="resposta">
+            Clique para revelar a resposta 👁️
+        </div>
+    </div>
+
+    <script>
+        // Banco de dados simulado (Você pode adicionar quantas cartas quiser aqui)
+        const cartas = [
+            {
+                categoria: "Pessoa",
+                resposta: "Ayrton Senna",
+                dicas: [
+                    "Nasci no Brasil em 1960.",
+                    "Fui um esportista famoso.",
+                    "Minha carreira foi no automobilismo.",
+                    "Fui tricampeão mundial de Fórmula 1.",
+                    "Meu maior rival foi Alain Prost."
+                ]
+            },
+            {
+                categoria: "Coisa",
+                resposta: "Telescópio",
+                dicas: [
+                    "Sou um instrumento óptico.",
+                    "Ajudo a enxergar coisas muito distantes.",
+                    "Fui aprimorado por Galileu Galilei.",
+                    "Muitos de mim estão no espaço, como o Hubble.",
+                    "Sou usado para observar estrelas e planetas."
+                ]
+            }
+        ];
+
+        let cartaAtual = null;
+        let dicaAtualIndex = 0;
+
+        function sortearCarta() {
+            // Sorteia uma carta aleatória do array
+            const randomIndex = Math.floor(Math.random() * cartas.length);
+            cartaAtual = cartas[randomIndex];
+            dicaAtualIndex = 0;
+
+            // Atualiza a interface
+            document.getElementById('carta-container').style.display = 'block';
+            document.getElementById('categoria').innerText = cartaAtual.categoria;
+            document.getElementById('resposta').innerText = "Clique para revelar a resposta 👁️";
+            document.getElementById('btn-proxima-dica').style.display = 'block';
+            
+            // Limpa as dicas anteriores
+            const container = document.getElementById('dicas-container');
+            container.innerHTML = '';
+
+            // Cria os elementos das dicas escondidos
+            cartaAtual.dicas.forEach((dica, index) => {
+                const div = document.createElement('div');
+                div.className = 'dica-texto';
+                div.id = 'dica-' + index;
+                div.innerHTML = `<strong>Dica ${index + 1}:</strong> ${dica}`;
+                container.appendChild(div);
+            });
+        }
+
+        function revelarProximaDica() {
+            if (cartaAtual && dicaAtualIndex < cartaAtual.dicas.length) {
+                document.getElementById('dica-' + dicaAtualIndex).style.display = 'block';
+                dicaAtualIndex++;
+                
+                if (dicaAtualIndex === cartaAtual.dicas.length) {
+                    document.getElementById('btn-proxima-dica').style.display = 'none';
+                }
+            }
+        }
+
+        function revelarResposta() {
+            if (cartaAtual) {
+                document.getElementById('resposta').innerText = `Resposta: ${cartaAtual.resposta}`;
+            }
+        }
+    </script>
+</body>
+</html>
