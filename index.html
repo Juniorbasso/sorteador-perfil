@@ -1,261 +1,231 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteador - Perfil Moderno</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Sorteador - Perfil 7</title>
     <style>
-        /* Estilos baseados na carta física */
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: #2c3e50; /* Fundo escuro para destacar a carta branca */
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
         }
+        .btn-pescar {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+        }
+        .btn-pescar:hover { background-color: #b71c1c; }
         
+        /* Estilo idêntico à carta física */
         .carta {
-            background-color: #f9f9f9;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            /* Textura super sutil para parecer papel */
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            background-color: #e4e6e3; /* Cor de papel reciclado claro */
+            width: 100%;
+            max-width: 380px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            display: none; /* Escondido até pescar */
+            color: #222;
         }
-
-        .cabecalho-carta {
-            background-color: #d1d5db; /* Cinza claro da barra superior */
-            border-top: 4px solid #f9f9f9;
-            border-left: 4px solid #f9f9f9;
-            border-right: 4px solid #f9f9f9;
+        .cabecalho {
+            display: flex;
+            align-items: stretch;
+            margin-bottom: 15px;
         }
-
-        .tag-categoria {
-            background-color: #6b7280; /* Cinza escuro da tag */
+        .categoria {
+            background-color: #5a5c5f;
+            color: white;
+            padding: 6px 12px;
+            font-weight: 900;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-
-        /* Classe para esconder a resposta */
-        .resposta-oculta {
-            filter: blur(6px);
-            background-color: #9ca3af;
-            color: transparent;
-            user-select: none;
+        .resposta {
+            background-color: #c4c5c0;
+            color: #333;
+            padding: 6px 12px;
+            font-weight: 900;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            flex-grow: 1;
+            text-align: left;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
-
-        .resposta-revelada {
-            filter: blur(0);
-            background-color: transparent;
-            color: #111827;
+        /* Classe para esconder a resposta para o mediador não mostrar sem querer */
+        .escondido {
+            color: transparent;
+            text-shadow: 0 0 12px rgba(0,0,0,0.6);
         }
-
-        /* Estilo da lista ordenada para ficar igual ao jogo original */
-        ol {
-            counter-reset: item;
-            list-style-type: none;
-            padding-left: 0;
+        .dicas-lista {
+            list-style-type: decimal;
+            padding-left: 25px;
+            margin: 0;
         }
-        
-        ol li {
-            display: flex;
+        .dicas-lista li {
             margin-bottom: 4px;
             font-size: 0.95rem;
             line-height: 1.3;
-            color: #1a1a1a;
+            letter-spacing: -0.2px;
         }
-        
-        ol li::before {
-            content: counter(item) ". ";
-            counter-increment: item;
-            margin-right: 8px;
-            font-weight: normal;
-            min-width: 20px;
-            text-align: right;
-        }
-
-        /* Animação de loading */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .instrucao {
+            color: #888;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 15px;
+            font-style: italic;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center py-10 px-4">
+<body>
 
-    <!-- Botão Principal -->
-    <button id="btn-pescar" onclick="gerarNovaCarta()" class="mb-8 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-full shadow-lg transform transition hover:scale-105 active:scale-95 text-lg uppercase tracking-wider">
-        🃏 Pescar Nova Carta
-    </button>
+    <button class="btn-pescar" onclick="pescarCarta()">Pescar Carta</button>
 
-    <!-- Container da Carta -->
-    <div id="carta-container" class="carta w-full max-w-[450px] rounded-md p-4 relative hidden">
-        
-        <!-- Cabeçalho (Categoria e Resposta) -->
-        <div class="cabecalho-carta flex items-center p-2 mb-4 shadow-sm">
-            <span id="txt-categoria" class="tag-categoria text-white font-bold px-3 py-1 text-lg uppercase tracking-wide">
-                COISA
-            </span>
-            <span id="txt-resposta" onclick="revelarResposta()" class="ml-3 font-bold text-lg uppercase cursor-pointer resposta-oculta px-2 rounded" title="Clique para revelar">
-                RESPOSTA SECRETA
-            </span>
+    <div class="carta" id="carta-container">
+        <div class="cabecalho">
+            <div class="categoria" id="categoria"></div>
+            <div class="resposta escondido" id="resposta" onclick="alternarResposta()"></div>
         </div>
-
-        <!-- Corpo (Dicas) -->
-        <ol id="lista-dicas" class="px-2">
-            <!-- As dicas serão inseridas aqui via JavaScript -->
+        
+        <ol class="dicas-lista" id="dicas-container">
+            <!-- As 20 dicas entrarão aqui -->
         </ol>
-    </div>
 
-    <!-- Tela de Carregamento -->
-    <div id="loading-container" class="flex flex-col items-center justify-center mt-10 hidden bg-white p-8 rounded-xl shadow-lg max-w-[450px] w-full">
-        <div class="loader mb-4"></div>
-        <p class="text-gray-700 font-bold text-center">A IA está pensando em um tema moderno e gerando as dicas...</p>
-        <p class="text-gray-500 text-sm mt-2 text-center">Isso pode levar alguns segundos.</p>
-    </div>
-
-    <!-- Mensagem de Erro -->
-    <div id="erro-container" class="hidden mt-10 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative max-w-[450px] w-full text-center">
-        <strong class="font-bold">Oops!</strong>
-        <span class="block sm:inline"> Houve um erro ao gerar a carta. Tente pescar novamente.</span>
+        <div class="instrucao">Toque na tarja cinzenta ao lado da categoria para revelar/esconder a resposta.</div>
     </div>
 
     <script>
-        // Chave da API (deixada em branco para o ambiente Canvas injetar automaticamente)
-        const apiKey = "";
-        
-        // Elementos da DOM
-        const btnPescar = document.getElementById('btn-pescar');
-        const cartaContainer = document.getElementById('carta-container');
-        const loadingContainer = document.getElementById('loading-container');
-        const erroContainer = document.getElementById('erro-container');
-        
-        const txtCategoria = document.getElementById('txt-categoria');
-        const txtResposta = document.getElementById('txt-resposta');
-        const listaDicas = document.getElementById('lista-dicas');
-
-        // Função para revelar a resposta ao clicar
-        function revelarResposta() {
-            txtResposta.classList.remove('resposta-oculta');
-            txtResposta.classList.add('resposta-revelada');
-        }
-
-        // Função para esconder a resposta quando uma nova carta for gerada
-        function esconderResposta() {
-            txtResposta.classList.remove('resposta-revelada');
-            txtResposta.classList.add('resposta-oculta');
-        }
-
-        // Função principal que chama a API do Gemini
-        async function gerarNovaCarta() {
-            // Atualiza UI para estado de carregamento
-            cartaContainer.classList.add('hidden');
-            erroContainer.classList.add('hidden');
-            loadingContainer.classList.remove('hidden');
-            btnPescar.disabled = true;
-            btnPescar.classList.add('opacity-50', 'cursor-not-allowed');
-
-            const prompt = `Gere uma carta de adivinhação. Retorne APENAS um JSON válido no formato: { "categoria": "...", "resposta": "...", "dicas": ["...", ...] }. A "categoria" deve ser escolhida aleatoriamente entre: COISA, DIGITAL, LUGAR, PESSOA, ANO. A "resposta" deve ser um tema moderno e atualizado (por exemplo: influenciadores atuais, tecnologias recentes, memes, séries novas, etc). "dicas" deve ser um array com exatamente 20 strings. As strings devem ser dicas curtas sobre a resposta, estruturadas na primeira pessoa (ex: "Sou...", "Fui...", "Nasci..."), indo das mais vagas e difíceis para as mais óbvias. Importante: substitua aleatoriamente de 2 a 3 dessas dicas por ações do jogo de tabuleiro, como "Perca sua vez." ou "Avance 3 espaços." ou "Volte 1 casa." ou "Jogue novamente."`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: {
-                        type: "OBJECT",
-                        properties: {
-                            categoria: { 
-                                type: "STRING", 
-                                description: "A categoria da carta.",
-                                enum: ["COISA", "DIGITAL", "LUGAR", "PESSOA", "ANO"] 
-                            },
-                            resposta: { 
-                                type: "STRING",
-                                description: "A resposta secreta da carta."
-                            },
-                            dicas: { 
-                                type: "ARRAY", 
-                                items: { type: "STRING" },
-                                description: "Exatamente 20 dicas."
-                            }
-                        },
-                        required: ["categoria", "resposta", "dicas"]
-                    }
-                }
-            };
-
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Erro na requisição: ${response.status}`);
-                }
-
-                const result = await response.json();
-                
-                if (result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    
-                    const jsonString = result.candidates[0].content.parts[0].text;
-                    const dadosCarta = JSON.parse(jsonString);
-                    
-                    renderizarCarta(dadosCarta);
-                    
-                } else {
-                    throw new Error("Estrutura de resposta inesperada da API.");
-                }
-
-            } catch (error) {
-                console.error("Erro ao gerar carta:", error);
-                erroContainer.classList.remove('hidden');
-                loadingContainer.classList.add('hidden');
-            } finally {
-                // Restaura o botão
-                btnPescar.disabled = false;
-                btnPescar.classList.remove('opacity-50', 'cursor-not-allowed');
+        // Banco de dados com cartas atualizadas. Pode adicionar centenas aqui seguindo a mesma estrutura.
+        const baralho = [
+            {
+                categoria: "DIGITAL",
+                resposta: "TIKTOK",
+                dicas: [
+                    "Fui lançado globalmente em 2017.",
+                    "Sou um aplicativo para smartphones.",
+                    "Minha empresa matriz é chinesa (ByteDance).",
+                    "Meu formato principal é de vídeos curtos verticais.",
+                    "Fiquei muito famoso por dancinhas e desafios.",
+                    "Perca sua vez.",
+                    "Tenho um algoritmo poderoso chamado 'For You' (Para Você).",
+                    "Ajudei a popularizar muitas músicas que estouraram nas paradas.",
+                    "Pessoas de todas as idades me usam, mas sou febre na Geração Z.",
+                    "Meu logotipo tem o formato de uma nota musical.",
+                    "Avance 3 espaços.",
+                    "Tive problemas de regulamentação em alguns países.",
+                    "Concorro diretamente com o Reels do Instagram.",
+                    "Os criadores de conteúdo na minha plataforma ganharam meu nome acrescido de 'ers'.",
+                    "Permito fazer 'duetos' com vídeos de outras pessoas.",
+                    "Perca sua vez.",
+                    "O ecrã rola infinitamente para cima.",
+                    "Fui fundido com o aplicativo Musical.ly nos meus primórdios.",
+                    "Fui um dos apps mais descarregados da década de 2020.",
+                    "Substituí a febre que antigamente era o Vine."
+                ]
+            },
+            {
+                categoria: "ANO",
+                resposta: "2020",
+                dicas: [
+                    "Fui um ano bissexto.",
+                    "Fiquei marcado na história mundial recente.",
+                    "Perca sua vez.",
+                    "Ocorreu o início de um confinamento global.",
+                    "O teletrabalho tornou-se regra para muitas empresas.",
+                    "Uma pandemia foi declarada neste período pela OMS.",
+                    "As Olimpíadas de Tóquio que aconteceriam em mim foram adiadas.",
+                    "Avance 2 espaços.",
+                    "Lives musicais no YouTube bateram recordes de audiência.",
+                    "Ocorreram eleições presidenciais nos Estados Unidos (Biden vs Trump).",
+                    "O Oscar de Melhor Filme foi para uma longa-metragem sul-coreana (Parasita).",
+                    "Fui o ano de lançamento dos consolas PlayStation 5 e Xbox Series X/S.",
+                    "Houve uma nuvem de gafanhotos assustando países da América do Sul.",
+                    "A rede social TikTok teve sua grande explosão mundial de utilizadores.",
+                    "Perca sua vez.",
+                    "Notas de 200 reais começaram a circular no Brasil.",
+                    "O mundo inteiro usou máscaras para sair de casa.",
+                    "Aconteceu a explosão no porto de Beirute, no Líbano.",
+                    "O filme 'Pantera Negra' perdeu o seu protagonista, Chadwick Boseman.",
+                    "Fui o ano em que o vírus SARS-CoV-2 mudou o mundo."
+                ]
+            },
+            {
+                categoria: "COISA",
+                resposta: "PASTEL",
+                dicas: [
+                    "Posso ser folhado.",
+                    "Sou um alimento muito comum em feiras populares do Brasil.",
+                    "Posso substituir refeições.",
+                    "Um palpite a qualquer hora.",
+                    "Costumo soltar uma fumacinha logo que sou mordido.",
+                    "Tenho vários sabores.",
+                    "Posso ser de vento.",
+                    "Os portugueses é que me deram a forma atual.",
+                    "Posso ser assado.",
+                    "Posso ser de Belém.",
+                    "Normalmente sou frito.",
+                    "Perca sua vez.",
+                    "Posso ser encontrado pronto no supermercado, para ser frito em casa.",
+                    "Faço uma boa dupla com o caldo de cana.",
+                    "Minha massa pode ser fina ou grossa.",
+                    "Sou crocante e saboroso.",
+                    "Também posso ser congelado.",
+                    "Avance 3 espaços.",
+                    "Tenho muitas calorias.",
+                    "Não sou recomendado para pessoas com colesterol alto."
+                ]
             }
-        }
+        ];
 
-        // Função para preencher o HTML com os dados da API
-        function renderizarCarta(dados) {
-            // Oculta loading
-            loadingContainer.classList.add('hidden');
+        function pescarCarta() {
+            // Sorteia uma carta aleatória do baralho
+            const indexAleatorio = Math.floor(Math.random() * baralho.length);
+            const cartaSorteada = baralho[indexAleatorio];
+
+            // Preenche o cabeçalho
+            document.getElementById('categoria').innerText = cartaSorteada.categoria;
             
-            // Atualiza cabeçalho
-            txtCategoria.innerText = dados.categoria;
-            txtResposta.innerText = dados.resposta;
-            esconderResposta(); // Garante que começa escondida
+            const elementoResposta = document.getElementById('resposta');
+            elementoResposta.innerText = cartaSorteada.resposta;
+            // Garante que a resposta venha escondida na nova pesca
+            if (!elementoResposta.classList.contains('escondido')) {
+                elementoResposta.classList.add('escondido');
+            }
 
-            // Limpa a lista atual e insere as 20 dicas
+            // Limpa as dicas anteriores e injeta as 20 novas dicas
+            const listaDicas = document.getElementById('dicas-container');
             listaDicas.innerHTML = '';
             
-            // Garante que mostre no máximo 20, caso a IA erre (embora o schema ajude a evitar)
-            const dicasLimitadas = dados.dicas.slice(0, 20);
-            
-            dicasLimitadas.forEach(dica => {
+            cartaSorteada.dicas.forEach(dica => {
                 const li = document.createElement('li');
                 li.innerText = dica;
                 listaDicas.appendChild(li);
             });
 
-            // Mostra a carta
-            cartaContainer.classList.remove('hidden');
+            // Exibe o cartão na tela
+            document.getElementById('carta-container').style.display = 'block';
         }
 
-        // Inicia o app gerando a primeira carta automaticamente
-        window.onload = function() {
-            gerarNovaCarta();
-        };
+        function alternarResposta() {
+            const elementoResposta = document.getElementById('resposta');
+            elementoResposta.classList.toggle('escondido');
+        }
     </script>
 </body>
 </html>
