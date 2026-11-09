@@ -1,157 +1,222 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!doctype html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteador - Perfil 7</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: #1a1a1a;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            margin: 0;
-        }
-        .btn-pescar {
-            background-color: #d32f2f;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            text-transform: uppercase;
-        }
-        .btn-pescar:hover { background-color: #b71c1c; }
-        
-        .carta {
-            background-color: #e4e6e3;
-            width: 100%;
-            max-width: 380px;
-            padding: 20px;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            display: none;
-            color: #222;
-        }
-        .cabecalho {
-            display: flex;
-            align-items: stretch;
-            margin-bottom: 15px;
-        }
-        .categoria {
-            background-color: #5a5c5f;
-            color: white;
-            padding: 6px 12px;
-            font-weight: 900;
-            font-size: 1.3rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .resposta {
-            background-color: #c4c5c0;
-            color: #333;
-            padding: 6px 12px;
-            font-weight: 900;
-            font-size: 1.3rem;
-            text-transform: uppercase;
-            flex-grow: 1;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .escondido {
-            color: transparent;
-            text-shadow: 0 0 12px rgba(0,0,0,0.6);
-        }
-        .dicas-lista {
-            list-style-type: decimal;
-            padding-left: 25px;
-            margin: 0;
-        }
-        .dicas-lista li {
-            margin-bottom: 4px;
-            font-size: 0.95rem;
-            line-height: 1.3;
-            letter-spacing: -0.2px;
-        }
-        .instrucao {
-            color: #888;
-            font-size: 0.8rem;
-            text-align: center;
-            margin-top: 15px;
-            font-style: italic;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a2c">
+  <meta name="description" content="Um baralho online para jogar Perfil com cartas atualizadas pela comunidade.">
+  <title>Baralho Perfil</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #101a2c;
+      color: #f5f7fb;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      --surface: #192740;
+      --surface-soft: #223451;
+      --accent: #f3b51b;
+      --muted: #b9c5d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: clamp(1rem, 4vw, 2.5rem);
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(ellipse at 50% -20%, #28456d 0, transparent 55%),
+        #101a2c;
+    }
+    main { width: min(100%, 42rem); }
+    header { margin-bottom: 1.5rem; text-align: center; }
+    h1 { margin: 0; font-size: clamp(2rem, 7vw, 3.2rem); letter-spacing: -.04em; }
+    header p { margin: .5rem 0 0; color: var(--muted); }
+    .controls { display: flex; justify-content: center; margin: 1.5rem 0; }
+    button {
+      min-height: 48px;
+      border: 2px solid transparent;
+      border-radius: .75rem;
+      padding: .7rem 1.15rem;
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform .15s ease, background-color .15s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+    .primary { background: var(--accent); color: #172033; font-size: 1.05rem; }
+    .secondary { background: var(--surface-soft); color: #fff; }
+    .card {
+      overflow: hidden;
+      border: 1px solid #344966;
+      border-radius: 1rem;
+      background: var(--surface);
+      box-shadow: 0 1.25rem 3rem #050b1680;
+    }
+    .card[hidden] { display: none; }
+    .card-head {
+      display: grid;
+      grid-template-columns: minmax(7rem, auto) 1fr;
+      gap: .75rem;
+      padding: clamp(1rem, 4vw, 1.5rem);
+      background: #203451;
+    }
+    .category, .answer {
+      min-height: 3.25rem;
+      display: flex;
+      align-items: center;
+      border-radius: .5rem;
+      padding: .7rem .85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .category { background: #354b68; letter-spacing: .06em; }
+    .answer { justify-content: space-between; gap: .75rem; background: #f4f5f7; color: #142033; }
+    .answer-value { overflow-wrap: anywhere; }
+    .answer.is-hidden .answer-value { filter: blur(.55rem); user-select: none; }
+    .answer.is-hidden .answer-value::selection { background: transparent; }
+    .answer button { min-height: 40px; flex: 0 0 auto; padding: .45rem .7rem; font-size: .9rem; }
+    .clues { margin: 0; padding: 1.25rem 1.5rem 1.25rem 3.5rem; }
+    .clues li { padding: .35rem .3rem; line-height: 1.5; }
+    .clues li::marker { color: var(--accent); font-weight: 800; }
+    .card-foot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      border-top: 1px solid #344966;
+      padding: 1rem 1.25rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    .status { min-height: 1.5rem; margin: 1rem 0; color: var(--muted); text-align: center; }
+    .status.error { color: #ffb4ab; }
+    @media (max-width: 440px) {
+      .card-head { grid-template-columns: 1fr; gap: .5rem; }
+      .category { min-height: 2.75rem; }
+      .card-foot { align-items: stretch; flex-direction: column; }
+      .card-foot button { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
 </head>
 <body>
-
-    <button class="btn-pescar" onclick="pescarCarta()">Pescar Carta</button>
-
-    <div class="carta" id="carta-container">
-        <div class="cabecalho">
-            <div class="categoria" id="categoria"></div>
-            <div class="resposta escondido" id="resposta" onclick="alternarResposta()"></div>
-        </div>
-        
-        <ol class="dicas-lista" id="dicas-container">
-            <!-- As dicas entrarão aqui via JavaScript -->
-        </ol>
-
-        <div class="instrucao">Toque na tarja cinzenta ao lado da categoria para revelar/esconder a resposta.</div>
+  <main>
+    <header>
+      <h1>Baralho Perfil</h1>
+      <p>Uma carta por vez. Leia as dicas e descubra a resposta.</p>
+    </header>
+    <div class="controls">
+      <button class="primary" id="draw-button" type="button">Embaralhar e começar</button>
     </div>
+    <p class="status" id="status" role="status" aria-live="polite">Pressione o botão para sortear uma carta.</p>
+    <article class="card" id="card" aria-label="Carta sorteada" hidden>
+      <div class="card-head">
+        <div class="category" id="category"></div>
+        <div class="answer is-hidden" id="answer">
+          <span class="answer-value" id="answer-value"></span>
+          <button class="secondary" id="reveal-button" type="button" aria-pressed="false">Revelar</button>
+        </div>
+      </div>
+      <ol class="clues" id="clues"></ol>
+      <footer class="card-foot">
+        <span id="card-count"></span>
+        <button class="secondary" id="next-button" type="button">Próxima carta</button>
+      </footer>
+    </article>
+  </main>
 
-    <!-- Conexão com o banco de cartas -->
-    <script src="cartas.js"></script>
+  <script src="cartas.js"></script>
+  <script>
+    (() => {
+      "use strict";
+      const drawButton = document.querySelector("#draw-button");
+      const nextButton = document.querySelector("#next-button");
+      const revealButton = document.querySelector("#reveal-button");
+      const card = document.querySelector("#card");
+      const status = document.querySelector("#status");
+      const answer = document.querySelector("#answer");
+      const clueList = document.querySelector("#clues");
+      let deck = [];
+      let position = 0;
 
-    <script>
-        function pescarCarta() {
-            // Verificação de segurança: Checa se o arquivo cartas.js carregou a variável baralho
-            if (typeof baralho === 'undefined' || !Array.isArray(baralho) || baralho.length === 0) {
-                alert("Erro: O banco de cartas não foi carregado. Se estiver abrindo o arquivo direto no PC, tente hospedar no GitHub para testar, ou verifique se o arquivo cartas.js está na mesma pasta.");
-                return;
-            }
-
-            // Sorteia o index
-            const indexAleatorio = Math.floor(Math.random() * baralho.length);
-            const cartaSorteada = baralho[indexAleatorio];
-
-            // Preenche o cabeçalho
-            document.getElementById('categoria').innerText = cartaSorteada.categoria;
-            
-            const elementoResposta = document.getElementById('resposta');
-            elementoResposta.innerText = cartaSorteada.resposta;
-            
-            // Garante que a resposta venha escondida na nova pesca
-            if (!elementoResposta.classList.contains('escondido')) {
-                elementoResposta.classList.add('escondido');
-            }
-
-            // Limpa as dicas e injeta as novas
-            const listaDicas = document.getElementById('dicas-container');
-            listaDicas.innerHTML = '';
-            
-            cartaSorteada.dicas.forEach(dica => {
-                const li = document.createElement('li');
-                li.innerText = dica;
-                listaDicas.appendChild(li);
-            });
-
-            // Mostra a carta
-            document.getElementById('carta-container').style.display = 'block';
+      function validateDeck(value) {
+        if (!Array.isArray(value) || value.length === 0) {
+          throw new Error("O arquivo cartas.js não carregou um baralho válido.");
         }
+        value.forEach((item, index) => {
+          const label = `Carta ${index + 1}`;
+          if (!item || typeof item !== "object" || Array.isArray(item)) {
+            throw new Error(`${label}: esperado um objeto.`);
+          }
+          if (typeof item.categoria !== "string" || !item.categoria.trim()) {
+            throw new Error(`${label}: categoria ausente ou inválida.`);
+          }
+          if (typeof item.resposta !== "string" || !item.resposta.trim()) {
+            throw new Error(`${label}: resposta ausente ou inválida.`);
+          }
+          if (!Array.isArray(item.dicas) || item.dicas.length === 0 ||
+              item.dicas.some(clue => typeof clue !== "string" || !clue.trim())) {
+            throw new Error(`${label}: dicas devem ser uma lista de textos não vazios.`);
+          }
+        });
+        return value;
+      }
 
-        function alternarResposta() {
-            const elementoResposta = document.getElementById('resposta');
-            elementoResposta.classList.toggle('escondido');
+      function shuffle(items) {
+        const result = items.slice();
+        for (let i = result.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [result[i], result[j]] = [result[j], result[i]];
         }
-    </script>
+        return result;
+      }
+
+      function showError(error) {
+        card.hidden = true;
+        status.textContent = error.message;
+        status.classList.add("error");
+        drawButton.textContent = "Tentar novamente";
+      }
+
+      function drawCard() {
+        try {
+          if (position === 0) deck = shuffle(validateDeck(baralho));
+          const item = deck[position];
+          document.querySelector("#category").textContent = item.categoria.trim();
+          document.querySelector("#answer-value").textContent = item.resposta.trim();
+          clueList.replaceChildren();
+          item.dicas.forEach(clue => {
+            const li = document.createElement("li");
+            li.textContent = clue.trim();
+            clueList.append(li);
+          });
+          answer.classList.add("is-hidden");
+          revealButton.textContent = "Revelar";
+          revealButton.setAttribute("aria-pressed", "false");
+          card.hidden = false;
+          status.classList.remove("error");
+          status.textContent = "Carta pronta. Leia as dicas em voz alta.";
+          document.querySelector("#card-count").textContent =
+            `Carta ${position + 1} de ${deck.length}`;
+          position = (position + 1) % deck.length;
+          drawButton.textContent = "Embaralhar e começar";
+        } catch (error) {
+          showError(error instanceof Error ? error : new Error("Não foi possível carregar as cartas."));
+        }
+      }
+
+      drawButton.addEventListener("click", () => { position = 0; drawCard(); });
+      nextButton.addEventListener("click", drawCard);
+      revealButton.addEventListener("click", () => {
+        const isHidden = answer.classList.toggle("is-hidden");
+        revealButton.textContent = isHidden ? "Revelar" : "Esconder";
+        revealButton.setAttribute("aria-pressed", String(!isHidden));
+      });
+    })();
+  </script>
 </body>
 </html>
