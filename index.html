@@ -4,39 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sorteador - Perfil 7</title>
-    <!-- Mantenha todo o seu CSS (style) anterior aqui -->
     <style>
-        /* ... seu CSS ... */
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .btn-pescar {
+            background-color: #d32f2f;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            text-transform: uppercase;
+        }
+        .btn-pescar:hover { background-color: #b71c1c; }
+        
+        .carta {
+            background-color: #e4e6e3;
+            width: 100%;
+            max-width: 380px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            display: none;
+            color: #222;
+        }
+        .cabecalho {
+            display: flex;
+            align-items: stretch;
+            margin-bottom: 15px;
+        }
+        .categoria {
+            background-color: #5a5c5f;
+            color: white;
+            padding: 6px 12px;
+            font-weight: 900;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .resposta {
+            background-color: #c4c5c0;
+            color: #333;
+            padding: 6px 12px;
+            font-weight: 900;
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            flex-grow: 1;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .escondido {
+            color: transparent;
+            text-shadow: 0 0 12px rgba(0,0,0,0.6);
+        }
+        .dicas-lista {
+            list-style-type: decimal;
+            padding-left: 25px;
+            margin: 0;
+        }
+        .dicas-lista li {
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+            line-height: 1.3;
+            letter-spacing: -0.2px;
+        }
+        .instrucao {
+            color: #888;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 15px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Mantenha os seus botões e divs do HTML anterior aqui -->
     <button class="btn-pescar" onclick="pescarCarta()">Pescar Carta</button>
 
     <div class="carta" id="carta-container">
-        <!-- ... estrutura da carta ... -->
+        <div class="cabecalho">
+            <div class="categoria" id="categoria"></div>
+            <div class="resposta escondido" id="resposta" onclick="alternarResposta()"></div>
+        </div>
+        
+        <ol class="dicas-lista" id="dicas-container">
+            <!-- As dicas entrarão aqui via JavaScript -->
+        </ol>
+
+        <div class="instrucao">Toque na tarja cinzenta ao lado da categoria para revelar/esconder a resposta.</div>
     </div>
 
-    <!-- 1. Primeiro carregamos o banco de dados -->
+    <!-- Conexão com o banco de cartas -->
     <script src="cartas.js"></script>
 
-    <!-- 2. Depois carregamos a lógica do jogo -->
     <script>
-        // O JavaScript agora sabe que a variável "baralho" existe porque foi carregada no script acima!
-
         function pescarCarta() {
+            // Verificação de segurança: Checa se o arquivo cartas.js carregou a variável baralho
+            if (typeof baralho === 'undefined' || !Array.isArray(baralho) || baralho.length === 0) {
+                alert("Erro: O banco de cartas não foi carregado. Se estiver abrindo o arquivo direto no PC, tente hospedar no GitHub para testar, ou verifique se o arquivo cartas.js está na mesma pasta.");
+                return;
+            }
+
+            // Sorteia o index
             const indexAleatorio = Math.floor(Math.random() * baralho.length);
             const cartaSorteada = baralho[indexAleatorio];
 
+            // Preenche o cabeçalho
             document.getElementById('categoria').innerText = cartaSorteada.categoria;
             
             const elementoResposta = document.getElementById('resposta');
             elementoResposta.innerText = cartaSorteada.resposta;
+            
+            // Garante que a resposta venha escondida na nova pesca
             if (!elementoResposta.classList.contains('escondido')) {
                 elementoResposta.classList.add('escondido');
             }
 
+            // Limpa as dicas e injeta as novas
             const listaDicas = document.getElementById('dicas-container');
             listaDicas.innerHTML = '';
             
@@ -46,6 +144,7 @@
                 listaDicas.appendChild(li);
             });
 
+            // Mostra a carta
             document.getElementById('carta-container').style.display = 'block';
         }
 
